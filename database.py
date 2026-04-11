@@ -13,5 +13,4 @@ intpk = Annotated[int, mapped_column(primary_key=True)]
 class Base(DeclarativeBase):
     type_annotation_map = {
         str_256: String(256),
-        intpk: Integer
     }

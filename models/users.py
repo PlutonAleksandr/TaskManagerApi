@@ -8,4 +8,4 @@ class Users(Base):
 
     id: Mapped[intpk]
     username: Mapped[str_256]
-    team_id: Mapped[int | None] = mapped_column(ForeignKey="teams.id")
+    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"))
