@@ -11,7 +11,7 @@ class Tasks(Base):
     id: Mapped[intpk]
     title: Mapped[str_256]
     priority: Mapped[int] # через pydantic проверять что в диапозоне от 1 до 10
-    description: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str]
     status: Mapped[TaskStatus] = mapped_column(default=TaskStatus.not_issued, nullable=False)
 
     user_id: Mapped[int] = mapped_column(nullable=True, ForeignKey="users.id")
