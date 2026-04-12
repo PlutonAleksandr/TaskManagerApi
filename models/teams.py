@@ -7,4 +7,4 @@ class Teams(Base):
     __tablename__ = "teams"
 
     id: Mapped[intpk]
-    command_name: Mapped[str_256]
+    team_name: Mapped[str_256]

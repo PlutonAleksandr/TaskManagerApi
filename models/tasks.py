@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,8 +15,8 @@ class Tasks(Base):
     priority: Mapped[int] # через pydantic проверять что в диапозоне от 1 до 10
     description: Mapped[str]
     status: Mapped[TaskStatus] = mapped_column(default=TaskStatus.not_issued, nullable=False)
-
-    user_id: Mapped[int] = mapped_column(nullable=True, ForeignKey="users.id")
-    team_id: Mapped[int] = mapped_column(nullable=True, ForeignKey="teams.id")
+    deadline: Mapped[datetime] = mapped_column(nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=True)
 
 
