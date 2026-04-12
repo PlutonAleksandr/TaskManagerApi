@@ -11,7 +11,12 @@ class UserCreate(BaseModel):
     age: int = Field(ge=18, le=130)
     team_id: int | None
 
-class UserResponseShema(UserCreate):
+class UserUpdate(BaseModel):
+    username: str | None = Field(min_length=3, max_length=256)
+    age: int | None = Field(ge=18, le=130)
+    team_id: int | None
+
+class UserResponseSchema(UserCreate):
     id:int
 
 
