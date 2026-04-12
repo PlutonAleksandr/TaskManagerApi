@@ -35,9 +35,10 @@ class UsersCRUD:
             if not user:
                 return None
 
-            user.username = new_data.username
-            user.age = new_data.age
-            user.team_id = new_data.team_id
+            update_dict = new_data.model_dump(exclude_unset=True)
+
+            for field, value in update_dict.items():
+                setattr(user, field, value)
 
             session.commit()
             session.refresh(user)
