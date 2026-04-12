@@ -13,7 +13,7 @@ class TeamUpdate(BaseModel):
         from_attributes=True,
         extra="forbid"
     )
-    team_name: str | None = Field(max_length=256)
+    team_name: str | None = Field(None, max_length=256)
 
 class TeamResponseSchema(TeamCreateSchema):
     id:int

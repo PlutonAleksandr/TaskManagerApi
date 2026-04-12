@@ -16,8 +16,8 @@ class TaskCreateSchema(BaseModel):
     description:str = Field(max_length=1000)
     deadline: datetime
     status:TaskStatus # проверить правда ли может прийти любая строка, а не мой enum
-    user_id: int | None
-    team_id: int | None
+    user_id: int | None = None
+    team_id: int | None = None
 
     @model_validator(mode="after")
     def check_one_assignment(self):
@@ -33,8 +33,8 @@ class TaskUpdateSchema(BaseModel):
     description: str | None = Field(None, max_length=1000)
     deadline: datetime | None = None
     status: TaskStatus | None = None
-    user_id: int | None
-    team_id: int | None
+    user_id: int | None = None
+    team_id: int | None = None
 
     @model_validator(mode="after")
     def check_one_assignment(self):
