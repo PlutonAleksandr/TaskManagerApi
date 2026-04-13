@@ -1,13 +1,23 @@
 from database import session_factory
-from models.users import Users
+from models import Teams, Users
 from schemas.user import UserCreate, UserUpdate
 
 
 class UsersCRUD:
+    @staticmethod
+    def _validate_team(session, team_id: int | None):
+        if team_id is None:
+            return
+
+        if not session.get(Teams, team_id):
+            raise ValueError("Команда не найдена")
 
     @staticmethod
     def create_user(user_data: UserCreate) -> Users:
         with session_factory() as session:
+
+            UsersCRUD._validate_team(session, user_data.team_id)
+
             user = Users(
                 username=user_data.username,
                 age=user_data.age,
@@ -36,6 +46,9 @@ class UsersCRUD:
                 return None
 
             update_dict = new_data.model_dump(exclude_unset=True)
+
+            if "team_id" in update_dict:
+                UsersCRUD._validate_team(session, update_dict["team_id"])
 
             for field, value in update_dict.items():
                 setattr(user, field, value)
