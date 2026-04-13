@@ -7,8 +7,11 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/", response_model=UserResponseSchema, summary="Создание пользователя")
 def create_user(user_data: UserCreate):
-    return UsersCRUD.create_user(user_data)
-# Проверить какой код должен выводиться если пользователя не удалось создать по той или иной причине
+    try:
+        return UsersCRUD.create_user(user_data)
+    except ValueError as ex:
+        raise HTTPException(status_code=400, detail=str(ex))
+
 
 @router.get("/", response_model=list[UserResponseSchema], summary="Получить всех пользователей")
 def get_all_users():
@@ -24,10 +27,15 @@ def get_user(id: int):
 
 @router.patch("/{id}", response_model=UserResponseSchema, summary="Обновить пользователя")
 def update_user(id: int, new_data: UserUpdate):
-    user = UsersCRUD.update_user(id, new_data)
-    if user is not None:
+    try:
+        user = UsersCRUD.update_user(id, new_data)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
         return user
-    raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    except ValueError as ex:
+        raise HTTPException(status_code=400, detail=str(ex))
 
 @router.delete("/{id}", summary="Удалить пользователя")
 def delete_user(id: int):
