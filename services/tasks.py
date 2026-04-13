@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import datetime
+
+from sqlalchemy import select, func
 
 from database import session_factory
 from models.statuses import TaskStatus
@@ -47,11 +49,26 @@ class TasksCRUD:
             return session.get(Tasks, id)
 
     @staticmethod
-    def select_task_by_status(status: TaskStatus) -> list[Tasks]:
+    def get_tasks_with_filters(
+            status: TaskStatus | None,
+            priority: int | None,
+            deadline: datetime | None
+    ) -> list[Tasks]:
         with session_factory() as session:
-            query = select(Tasks).where(Tasks.status == status)
+            query = select(Tasks)
+
+            if status is not None:
+                query = query.where(Tasks.status == status)
+
+            if priority is not None:
+                query = query.where(Tasks.priority == priority)
+
+            if deadline is not None:
+                query = query.where(Tasks.deadline <= deadline)
+
             result = session.execute(query)
             return result.scalars().all()
+
 
     @staticmethod
     def select_tasks_by_id(list_id: list[int]) -> list[Tasks]:
@@ -60,17 +77,14 @@ class TasksCRUD:
             return session.execute(query).scalars().all()
 
     @staticmethod
-    def update_task(task_id: int, update_data: TaskUpdateSchema) -> Tasks | None:
+    def update_task(id: int, update_data: TaskUpdateSchema) -> Tasks | None:
         with session_factory() as session:
-            task = session.get(Tasks, task_id)
+            task = session.get(Tasks, id)
 
             if not task:
                 return None
 
-            new_user_id = update_data.user_id if update_data.user_id is not None else task.user_id
-            new_team_id = update_data.team_id if update_data.team_id is not None else task.team_id
-
-            if new_user_id is not None and new_team_id is not None:
+            if update_data._invalid_assignment:
                 raise ValueError("Задача не может быть назначена и пользователю и команде одновременно")
 
             TasksCRUD._validate_assignment(session, update_data.user_id, update_data.team_id)
@@ -81,19 +95,25 @@ class TasksCRUD:
                 setattr(task, field, value)
 
             session.commit()
+            session.refresh(task)
 
             return task
 
     @staticmethod
-    def update_tasks_by_status(list_id: list[int], new_status: TaskStatus) -> None:
+    def update_tasks_by_status(list_id: list[int], new_status: TaskStatus) -> int:
         with session_factory() as session:
             query = select(Tasks).where(Tasks.id.in_(list_id))
             tasks = session.execute(query).scalars().all()
 
             for task in tasks:
                 task.status = new_status
-
             session.commit()
+
+            return len(tasks)
+
+    @staticmethod
+    def assign_task(task_id: int, user_id: int | None = None, team_id: int | None  = None ):
+        return TasksCRUD.update_task(task_id, TaskUpdateSchema(user_id=user_id, team_id=team_id))
 
     @staticmethod
     def delete_task(task_id: int) -> bool:
@@ -106,3 +126,26 @@ class TasksCRUD:
             session.commit()
 
             return True
+
+    @staticmethod
+    def get_statistics_by_status(user_id: int | None, team_id: int | None):
+        with session_factory() as session:
+            if user_id is not None and team_id is not None:
+                raise ValueError("Невозможно получить статистику по команде и пользователю одновременно")
+
+            if user_id is None and team_id is None:
+                raise ValueError("Невозможно получить статистику, так как не передана информация о пользователе или команде")
+
+            if user_id is not None:
+                condition = Tasks.user_id == user_id
+            else:
+                condition = Tasks.team_id == team_id
+
+            query = select(
+                Tasks.status, func.count(Tasks.id)
+            ).where(condition).group_by(Tasks.status)
+            list_status = session.execute(query).all()
+
+            if not list_status: return {}
+
+            return {status.value: count for status, count in list_status}
