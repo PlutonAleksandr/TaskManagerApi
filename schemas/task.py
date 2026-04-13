@@ -26,7 +26,6 @@ class TaskCreateSchema(BaseModel):
         return self
 
 
-
 class TaskUpdateSchema(BaseModel):
     title: str | None = Field(None, min_length=3, max_length=256)
     priority: int | None = Field(None, ge=1, le=10)
@@ -39,9 +38,18 @@ class TaskUpdateSchema(BaseModel):
     @model_validator(mode="after")
     def check_one_assignment(self):
         if self.user_id is not None and self.team_id is not None:
-            raise ValueError("Задача не может быть назначена и пользователю и команде одновременно")
+            self._invalid_assignment = True
         return self
 
 
 class TaskResponseSchema(TaskCreateSchema):
     id: int
+
+class TasksListIdsSchema(BaseModel):
+    ids: list[int]
+
+class TasksBulkUpdateSchema(TasksListIdsSchema):
+    status: TaskStatus
+
+class TaskStatusStatisticsSchema(BaseModel):
+    stats: dict[str, int]
