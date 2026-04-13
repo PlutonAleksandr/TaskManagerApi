@@ -9,11 +9,11 @@ class UserCreate(BaseModel):
 
     username: str = Field(min_length=3, max_length=256)
     age: int = Field(ge=18, le=130)
-    team_id: int | None = None
+    team_id: int | None = Field(None, ge=1)
 
 class UserUpdate(BaseModel):
-    username: str | None = Field(min_length=3, max_length=256)
-    age: int | None = Field(ge=18, le=130)
+    username: str | None = Field(None, min_length=3, max_length=256)
+    age: int | None = Field(None, ge=18, le=130)
     team_id: int | None = None
 
 class UserResponseSchema(UserCreate):
