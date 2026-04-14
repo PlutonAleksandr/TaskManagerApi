@@ -1,0 +1,6 @@
+заметки
+.venv/
+.idea/
+.env
+init_db.py
+__pycache__/
