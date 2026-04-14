@@ -8,5 +8,5 @@ class Users(Base):
 
     id: Mapped[intpk]
     username: Mapped[str_256] = mapped_column(nullable=False)
-    age: Mapped[int] = mapped_column(nullable=False) # поменять на год рождения, сейчас оставить так
-    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"), nullable=True)
+    age: Mapped[int] = mapped_column(nullable=False)
+    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id", ondelete="SET NULL"), nullable=True)

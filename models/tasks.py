@@ -16,7 +16,7 @@ class Tasks(Base):
     description: Mapped[str]
     status: Mapped[TaskStatus] = mapped_column(default=TaskStatus.not_issued, nullable=False)
     deadline: Mapped[datetime] = mapped_column(nullable=False)
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"), nullable=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id", ondelete="SET NULL"), nullable=True)
 
 
