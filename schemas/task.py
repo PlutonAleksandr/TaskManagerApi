@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 
@@ -35,10 +36,10 @@ class TaskUpdateSchema(BaseModel):
     user_id: int | None = None
     team_id: int | None = None
 
+
     @model_validator(mode="after")
     def check_one_assignment(self):
-        if self.user_id is not None and self.team_id is not None:
-            self._invalid_assignment = True
+        self._invalid_assignment = (self.user_id is not None and self.team_id is not None)
         return self
 
 
